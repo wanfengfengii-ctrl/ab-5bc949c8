@@ -1,0 +1,28 @@
+services:
+  interlock-events:
+    build: .
+    image: interlock-events:latest
+    ports:
+      # Host port follows APP_PORT so the same variable configures both.
+      - "${APP_PORT:-8080}:${APP_PORT:-8080}"
+    environment:
+      APP_PORT: "${APP_PORT:-8080}"
+      RETENTION_LIMIT: "${RETENTION_LIMIT:-100}"
+      DB_PATH: "/data/events.db"
+      HEARTBEAT_SECONDS: "${HEARTBEAT_SECONDS:-5}"
+    volumes:
+      - event-data:/data
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import os,urllib.request,sys; port=os.environ.get('APP_PORT','8080'); sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:'+port+'/health', timeout=2).status==200 else 1)"
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 2s
+    restart: unless-stopped
+
+volumes:
+  event-data:
