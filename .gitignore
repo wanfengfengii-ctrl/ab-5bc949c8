@@ -11,3 +11,10 @@ __pycache__/
 .nox/
 .pnpm-store/
 *.py[cod]
+
+# Go build/runtime artifacts
+/bin/
+/data/
+/.verify-data/
+*.log
+restart-smoke-state.json
